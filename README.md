@@ -50,8 +50,13 @@ codex mcp add dotv -- npx -y @dotv/cli mcp
 dsh plugin --profile demo add https://github.com/dotv-ai/connectors/releases/latest/download/dotv-dsh-canvas.tgz
 ```
 
-The npm route (`dsh plugin add @dotv/dsh-canvas`) is on its way — see
-[CONTRIBUTING.md](./CONTRIBUTING.md) for how releases are cut.
+The npm route works too, and needs no build approval either:
+
+```sh
+dsh plugin --profile demo add @dotv/dsh-canvas
+```
+
+Releases are cut by CI — see [CONTRIBUTING.md](./CONTRIBUTING.md) for how.
 
 ## What you need
 

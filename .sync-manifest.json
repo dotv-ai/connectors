@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-10T09:01:16.426Z",
+  "generatedAt": "2026-11-10T09:12:06.168Z",
   "source": "packages/connectors",
-  "treeHash": "aba94eb14a9a5a9b330bc3087e398dc978418edafa82211db566a5b972ec8099",
+  "treeHash": "c4e5df00707fb7042fcaf71a06fb0964a64831d8dbbdffd4ec3d21b7d1930049",
   "files": {
     ".agents/plugins/marketplace.json": "989edbb99b35c9d467b7d9a11f38a3760af9d17645414d3abf248c09d18f0075",
     ".claude-plugin/marketplace.json": "4a6bce51e6b303d1b433b6f692c8b830c7cb5cd6776cca677e7e756ee075e634",
@@ -11,8 +11,8 @@
     "CONTRIBUTING.zh.md": "11274d0df5892158860f7146a7c8a84c223871548ed4b4b0c7d3aa72ad868e88",
     "LICENSE": "e44e54dc1c48cf9531aebce8661f1cc3f7f4888c3068a7d2283746a83c69a51b",
     "NOTICE.md": "d46809418abe1aef5c62efe98a717ab00a557357fa0eb464b071fa0feb901a3e",
-    "README.md": "98072469301f4860484df57ab9e1006d80747be31e0d3f0e6da6bd0f1fa84466",
-    "README.zh.md": "2f2458e42051df92c9487a07383d685bf59511ada94103e4ff468ef410a91134",
+    "README.md": "36166c0f3f68652b9f4e8fe771d0d7ce92fc5a92b4d76010213bc7eb4fc31efc",
+    "README.zh.md": "aa099f3b33d70b0550698ac05d458ea22bf58608d0148146f8424eb703f9d580",
     "bundles/README.md": "b321ff65fecccb73395f7336d0c0dc4667701210edf6110c94b8b7900f705d53",
     "bundles/deepseek-harness/client.js": "00315461feee6cb349fc6b4f98de4262bfb57c0d4a6b3609f73ab62fddb0cc19",
     "bundles/deepseek-harness/cordis.patch.yml": "b4212823ea8c131fb1846b75cfe4f3867742161afe0c1ec0b58f5d4a8472d56c",
