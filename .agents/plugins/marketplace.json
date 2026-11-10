@@ -1,0 +1,20 @@
+{
+  "name": "connectors",
+  "interface": {
+    "displayName": "DOTV Connectors"
+  },
+  "plugins": [
+    {
+      "name": "dotv-canvas",
+      "source": {
+        "source": "local",
+        "path": "./plugins/dotv-canvas"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Creativity"
+    }
+  ]
+}

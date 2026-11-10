@@ -1,0 +1,43 @@
+name: Connectors CI
+
+# 公开仓自己的闸。同步过来的内容在这里被检查，合并之前红了就别合。
+#
+# 为什么公开仓要有一道自己的 CI，而不是全靠私有仓那趟：公开仓的 main 有 branch
+# protection，PR 合并前必须有一道检查；而这棵树是在私有仓里生成的，检查得在公开
+# 仓这一侧跑才算数（公开仓看得到自己，看不到私有真源）。
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify the marketplace
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 树跟它自己的同步清单对不对得上 —— 对不上说明有人绕过同步直接改了文件。
+      - name: The tree matches its sync manifest
+        run: node tooling/sync.mjs --check
+
+      # 秘密、私有指向、workspace: 依赖、越界路径 —— 第二道，出仓前那道是第一道。
+      - name: The tree passes the public gate
+        run: node tooling/verify-public-tree.mjs
+
+      # 市场索引里的每一条都要能在磁盘上找到，条目名与 manifest 要一致。
+      - name: The marketplace indexes point at real entries
+        run: node tooling/verify-marketplaces.mjs
+
+      # 版本号在 version.json 与各 manifest 之间一致。
+      - name: The version is consistent everywhere
+        run: node tooling/set-version.mjs --check
