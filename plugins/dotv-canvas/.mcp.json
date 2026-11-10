@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dotv": {
+      "command": "npx",
+      "args": ["-y", "@dotv/cli", "mcp"]
+    }
+  }
+}

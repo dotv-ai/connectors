@@ -1,0 +1,20 @@
+{
+  "name": "connectors",
+  "owner": {
+    "name": "DOTV"
+  },
+  "plugins": [
+    {
+      "name": "dotv-canvas",
+      "source": "./plugins/dotv-canvas",
+      "description": "Drive the DOTV infinite canvas from your agent: read and edit nodes, run generations, and report what changed.",
+      "version": "0.1.0",
+      "author": {
+        "name": "DOTV"
+      },
+      "homepage": "https://dotv.ai",
+      "license": "MIT",
+      "keywords": ["dotv", "canvas", "image", "video"]
+    }
+  ]
+}

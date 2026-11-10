@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-11-10T07:34:32.300Z",
+  "source": "packages/connectors",
+  "treeHash": "084e77bb0c8aa5d9cc52454ac7ecfce7904e39f4c2c234fdfbc29eed93b43ffc",
+  "files": {
+    ".agents/plugins/marketplace.json": "989edbb99b35c9d467b7d9a11f38a3760af9d17645414d3abf248c09d18f0075",
+    ".claude-plugin/marketplace.json": "d6cf605c6726c0fb2e3b23664977eacf13e02ce49b9fdcbaed133ae98ffaa595",
+    ".github/workflows/ci.yml": "06e70c1b18096ef7cbf2d2e3fd3fff20cd4c783f48e89bda8105add63d34d059",
+    ".github/workflows/release.yml": "94259c8c8a621b7084e9d81ae76979e6f5588d8ae0c3f520f188bab307bde468",
+    "CONTRIBUTING.md": "546b26184c111293786895aa5512ace21665643c20f507fe7198b6df779ba7a9",
+    "CONTRIBUTING.zh.md": "11274d0df5892158860f7146a7c8a84c223871548ed4b4b0c7d3aa72ad868e88",
+    "LICENSE": "e44e54dc1c48cf9531aebce8661f1cc3f7f4888c3068a7d2283746a83c69a51b",
+    "NOTICE.md": "d46809418abe1aef5c62efe98a717ab00a557357fa0eb464b071fa0feb901a3e",
+    "README.md": "838bde23a40944d19e73bfa5cc0e6558ac8e5eb4449e235fa070b7b46d88ea0a",
+    "README.zh.md": "17a7f3c12dfcad3da6eca68777d26597e9624b044d6bb036fbd30e127912faaf",
+    "bundles/README.md": "e23520fadba1c820264bae66393296ef73a9f5aab16fa092e95cb17ac63dd2f4",
+    "core/README.md": "8b9ac41b87d7ba33f51335c3fb08bf1d0efe0791eaa963066f1a41e016aa71dd",
+    "plugins/dotv-canvas/.claude-plugin/plugin.json": "570aabd6656168171a5d36f86a81fc9b49215bea9db3bd5411f9b7d54d31f290",
+    "plugins/dotv-canvas/.codex-plugin/plugin.json": "869c864c3d45d26ab729620b028ed0811bc351be3b4b13b68fdbe94b50bf4b8e",
+    "plugins/dotv-canvas/.mcp.json": "56de74c6718560e03fabbdf975809c442b73355506f0dce87c7b27749d8859a5",
+    "plugins/dotv-canvas/README.md": "7b39596fbb3a4dd74f1673ab54e58c81d70056b27715ae9ffb7efa284036dffb",
+    "plugins/dotv-canvas/assets/icon.svg": "81de64ab69925e05374a402914e3c67c926698dcfe3cbc2887c28c39f158f172",
+    "plugins/dotv-canvas/commands/dotv-canvas.md": "2e86613c6f2bd4fde99d390f4a745ee6a64a632b36134642561f8ff53be7ece9",
+    "plugins/dotv-canvas/skills/dotv-canvas/SKILL.md": "ebe940c970bc9f8313763a2b256e6e6343eb69674db5a9e99b444ef5957ca15c",
+    "tooling/README.md": "18ff047d5604920e458524dd4685b61f35578fe31db60ab754977adc7d21d319",
+    "tooling/check-brand-icon.mjs": "6c4fa501a2ec23baab68154430b248aa5f9f18cd694076411efc31534518c7d1",
+    "tooling/set-version.mjs": "b0a88a7fc1185dafb98b720d5e6de31447f82f0b3ca01042a37450348e4fe864",
+    "tooling/sync.mjs": "10357ce7e0f5ca4aa3a704577dc279760881517a9e35eece3eeeb3863c6a99eb",
+    "tooling/verify-marketplaces.mjs": "938cc85c26eb5aef3658528f5175e34f09bde31a3fa8c721094bada6ac5b7011",
+    "tooling/verify-public-tree.mjs": "bcd3adc233beb4a3f564e8a6eb1bc2433799706dd4f5d969b85ca62658a7fad3",
+    "version.json": "3b5777d9f33a93723a17a18659df4b19ba174ba7673b693266329d5d16ffcc3b"
+  }
+}
