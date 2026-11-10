@@ -8,7 +8,7 @@
       "name": "dotv-canvas",
       "source": "./plugins/dotv-canvas",
       "description": "Drive the DOTV infinite canvas from your agent: read and edit nodes, run generations, and report what changed.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "author": {
         "name": "DOTV"
       },

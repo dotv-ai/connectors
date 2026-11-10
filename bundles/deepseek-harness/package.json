@@ -1,6 +1,6 @@
 {
   "name": "@dotv/dsh-canvas",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "在 DeepSeek Harness 里驱动 DOTV 无限画布：读画布、加节点、跑生成。",
   "type": "module",
   "main": "index.js",

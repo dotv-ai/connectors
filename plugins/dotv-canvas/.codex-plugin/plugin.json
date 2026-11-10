@@ -1,6 +1,6 @@
 {
   "name": "dotv-canvas",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Drive the DOTV infinite canvas from your agent: read and edit nodes, run image/video/audio generations, and report what changed on the canvas.",
   "author": {
     "name": "DOTV",

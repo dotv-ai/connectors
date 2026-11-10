@@ -89,9 +89,8 @@ jobs:
     # 这个仓的发版跑在 connectors 这个环境里 —— 环境上的保护规则在这一层生效，
     # Trusted Publisher 认的也是它。
     environment: connectors
-    # 还没在 npm 上配 trusted publisher 时，这一步会因为要一次性 2FA 而红。
-    # 那不影响 tarball 与 Release（另一个 job），所以这里放过它 —— 等配好了，把这行删掉。
-    continue-on-error: true
+    # npm 上配了 Trusted Publisher（dotv-ai / connectors / release.yml / environment
+    # connectors），这一步走 OIDC：不需要任何 token，也不碰 2FA。
     steps:
       - uses: actions/checkout@v4
 
