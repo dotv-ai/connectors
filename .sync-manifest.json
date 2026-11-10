@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T07:34:32.300Z",
+  "generatedAt": "2026-11-10T07:44:51.713Z",
   "source": "packages/connectors",
-  "treeHash": "084e77bb0c8aa5d9cc52454ac7ecfce7904e39f4c2c234fdfbc29eed93b43ffc",
+  "treeHash": "e9c5fb8953ad4a132303973001ce0afe41c4408ed1c241f7e39c8d31f15d07b2",
   "files": {
     ".agents/plugins/marketplace.json": "989edbb99b35c9d467b7d9a11f38a3760af9d17645414d3abf248c09d18f0075",
     ".claude-plugin/marketplace.json": "d6cf605c6726c0fb2e3b23664977eacf13e02ce49b9fdcbaed133ae98ffaa595",
     ".github/workflows/ci.yml": "06e70c1b18096ef7cbf2d2e3fd3fff20cd4c783f48e89bda8105add63d34d059",
-    ".github/workflows/release.yml": "94259c8c8a621b7084e9d81ae76979e6f5588d8ae0c3f520f188bab307bde468",
+    ".github/workflows/release.yml": "2c625010a66b886d7538d5b281f107e403acac9b71670cabb89ea7b4f4015211",
     "CONTRIBUTING.md": "546b26184c111293786895aa5512ace21665643c20f507fe7198b6df779ba7a9",
     "CONTRIBUTING.zh.md": "11274d0df5892158860f7146a7c8a84c223871548ed4b4b0c7d3aa72ad868e88",
     "LICENSE": "e44e54dc1c48cf9531aebce8661f1cc3f7f4888c3068a7d2283746a83c69a51b",

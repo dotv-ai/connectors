@@ -1,18 +1,18 @@
 name: Release connectors
 
-# 连接器的发版。两件事都在这个文件里，因为它们是同一件事的两半：
+# 连接器的发版。一件事两半：**版本号变了就发，发完留个 tag**。
 #
-#   tag   —— 版本号变了（version.json）就补一个 tag，tag 一落，publish 那半就开跑；
-#   publish —— 按 tag 发版：npm 包、tarball、GitHub Release。
+# 触发方式有两种：
 #
-# 为什么不等人点：版本号是私有仓那边用 `pnpm connectors:version <x.y.z>` 改的，改完
-# 提交 → 同步进本仓 → 本仓的 main 一变，这里自动补 tag 并发版。全程不用人记得点。
+#   · 合进 main —— 版本号（version.json）跟上次发的不是同一个，就发一版。
+#   · 人推 tag —— `git push origin v1.2.3`，指定版本发。
 #
-# 要发的只有「本仓里有 bundle 的东西」：npm 包是 bundle 打的，tarball 也是。没有
-# bundle 的目录不发布 —— 少发一个包好过发一个装不上的包。
+# **为什么 tag 与发版在同一趟里做完**：CI 用 GITHUB_TOKEN 推的 tag，GitHub 不会因为这个
+# push 再触发一轮 workflow（防递归）。所以「推 tag」和「按 tag 发版」不能分成两趟 ——
+# 分开的话，CI 自己打的 tag 永远等不到那一趟发版。
 #
-# 凭据：NPM_TOKEN（npm 的 publish token 或 automation token）。npm 包还没建起来之前
-# 这个 secret 可以先不配，publish 那半会只发 GitHub Release。
+# npm 包走 Trusted Publishing（OIDC），不碰 token；没配 trusted publisher 的包
+# 需要用 dotv 组织的 npm token 手发那一版。
 
 on:
   push:
@@ -28,41 +28,11 @@ permissions:
   id-token: write
 
 jobs:
-  tag:
-    name: Tag the current version
-    # 只在 main 上跑：tag 推上来的时候不需要再补一个 tag。
-    if: github.ref == 'refs/heads/main'
+  release:
+    name: Release
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: The version is consistent everywhere
-        run: node tooling/set-version.mjs --check
-
-      - name: Tag it if it is not tagged yet
-        run: |
-          version=$(node -p "require('./version.json').version")
-          if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
-            echo "v$version 已经打过 tag 了"
-            exit 0
-          fi
-          git config user.name "dotv-release[bot]"
-          git config user.email "dotv-release[bot]@users.noreply.github.com"
-          git tag "v$version"
-          git push origin "v$version"
-
-  publish:
-    name: Publish
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    # 声明 environment：这个仓的发版跑在 connectors 这个环境里 —— 环境上的 secret
-    # （NPM_TOKEN 兜底）与保护规则只在这一层生效。Trusted Publisher 认的也是它。
+    # 这个仓的发版跑在 connectors 这个环境里 —— 环境上的保护规则在这一层生效，
+    # Trusted Publisher 认的也是它。
     environment: connectors
     steps:
       - uses: actions/checkout@v4
@@ -74,7 +44,7 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
-      # 发版之前把三道闸再跑一遍：发出去的东西不该比合进 main 时更松。
+      # 发版之前把四道闸再跑一遍：发出去的东西不该比合进 main 时更松。
       - name: Gates
         run: |
           node tooling/sync.mjs --check
@@ -82,31 +52,45 @@ jobs:
           node tooling/verify-marketplaces.mjs
           node tooling/set-version.mjs --check
 
-      - name: The tag matches the version
+      # 这一趟发不发、npm 发不发，一次算清：
+      #   · 人推的 tag        —— 发，npm 也发；
+      #   · main 上版本号变了 —— 打 tag，然后发；
+      #   · main 上版本号没变 —— npm 不重复发（同一个版本发第二次会被 npm 拒），
+      #                           但确保这个版本有个 Release（上一趟可能只打了 tag）。
+      - name: Work out what to publish
+        id: plan
         run: |
           version=$(node -p "require('./version.json').version")
-          tag="${GITHUB_REF_NAME#v}"
-          if [ "$version" != "$tag" ]; then
-            echo "tag 是 $tag，而树里的版本是 $version —— 对不上，不发。"
-            exit 1
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "publish_npm=true" >> "$GITHUB_OUTPUT"
+            echo "publish_release=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
+            echo "v$version 已经打过 tag 了。"
+            echo "publish_npm=false" >> "$GITHUB_OUTPUT"
+            echo "publish_release=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "dotv-release[bot]"
+          git config user.email "dotv-release[bot]@users.noreply.github.com"
+          git tag "v$version"
+          git push origin "v$version"
+          echo "打了 tag v$version"
+          echo "publish_npm=true" >> "$GITHUB_OUTPUT"
+          echo "publish_release=true" >> "$GITHUB_OUTPUT"
 
       # Trusted Publishing 需要 npm >= 11.5.1，而 Node 22 自带的是 npm 10 —— 先升。
       - name: Use an npm that speaks trusted publishing
+        if: steps.plan.outputs.publish_npm == 'true'
         run: npm install -g npm@latest
 
-      # 只走 Trusted Publishing（OIDC），**不兜底 token**。
-      # npm CLI 会自动认出 OIDC 环境，用它换身份 —— 这一步不碰任何长期凭据。
-      #
-      # 前提：包要在 npm 上配好 trusted publisher（GitHub Actions / dotv-ai /
-      # connectors / release.yml / environment connectors）。配好之后，npm 上这个包的
-      # Publishing access 还能进一步设成「Require two-factor authentication and
-      # disallow tokens」，那就彻底没有 token 可偷了。
-      #
-      # 头一版是特例：包还没在 npm 上存在时配不了 trusted publisher，那一版用
-      # dotv 组织的 npm token 手发（org 里的 NPM_TOKEN）；发完就能配 trusted
-      # publisher，从下一版起 CI 自己发。
       - name: Publish the npm packages
+        if: steps.plan.outputs.publish_npm == 'true'
         run: |
           shopt -s nullglob
           packages=(bundles/*/package.json)
@@ -124,25 +108,30 @@ jobs:
             fi
           done
 
-      - name: Attach the tarballs and open the release
+      - name: Open the GitHub release
+        if: steps.plan.outputs.publish_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.plan.outputs.version }}
         run: |
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "v$VERSION 的 Release 已经在了，不重复建。"
+            exit 0
+          fi
           shopt -s nullglob
-          version=$(node -p "require('./version.json').version")
           tarballs=()
           for manifest in bundles/*/package.json; do
             dir=$(dirname "$manifest")
             name=$(node -p "require('./$manifest').name")
-            version_of_package=$(node -p "require('./$manifest').version")
+            package_version=$(node -p "require('./$manifest').version")
             tarball=$(npm pack --pack-destination "$RUNNER_TEMP" "$dir" | tail -1)
             tarballs+=("$RUNNER_TEMP/$tarball")
-            echo "$name@$version_of_package → $tarball"
+            echo "$name@$package_version → $tarball"
           done
           notes=$(printf '连接器 v%s。\n\n- npm 包：%s\n- tarball：DSH 用户免构建授权直接装。\n' \
-            "$version" "$(ls bundles | tr '\n' ' ')")
+            "$VERSION" "$(ls bundles | tr '\n' ' ')")
           if [ ${#tarballs[@]} -gt 0 ]; then
-            gh release create "v$version" "${tarballs[@]}" --title "connectors v$version" --notes "$notes"
+            gh release create "v$VERSION" "${tarballs[@]}" --title "connectors v$VERSION" --notes "$notes"
           else
-            gh release create "v$version" --title "connectors v$version" --notes "$notes"
+            gh release create "v$VERSION" --title "connectors v$VERSION" --notes "$notes"
           fi
