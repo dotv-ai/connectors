@@ -118,7 +118,9 @@ jobs:
             dir=$(dirname "$manifest")
             name=$(node -p "require('./$manifest').name")
             echo "发布 $name（$dir）"
-            if ! npm publish --access public --provenance "$dir"; then
+            # 路径要带 ./ 前缀 —— 不带的话 npm 把 "bundles/xxx" 当成**包名**去解析，
+            # 于是它去 registry / git 上找一个叫 bundles/xxx 的包。
+            if ! npm publish --access public --provenance "./$dir"; then
               echo "::error::$name 发布失败。检查它在 npm 上配没配 trusted publisher：GitHub Actions / dotv-ai / connectors / release.yml / environment connectors。"
               exit 1
             fi
@@ -155,13 +157,19 @@ jobs:
             echo "v$VERSION 的 Release 已经在了，不重复建。"
             exit 0
           fi
+          set -o pipefail
           shopt -s nullglob
           tarballs=()
           for manifest in bundles/*/package.json; do
             dir=$(dirname "$manifest")
             name=$(node -p "require('./$manifest').name")
             package_version=$(node -p "require('./$manifest').version")
-            tarball=$(npm pack --pack-destination "$RUNNER_TEMP" "$dir" | tail -1)
+            # 同样要 ./ 前缀（见上面那句）。pack 失败要当场停 —— 不然后面 mv 一个空文件名，
+            # 报错会指向别处，看不出真正的原因。
+            if ! tarball=$(npm pack --pack-destination "$RUNNER_TEMP" "./$dir" | tail -1); then
+              echo "::error::打 tarball 失败：$dir"
+              exit 1
+            fi
             # 名字里不带版本号：`releases/latest/download/<名字>` 每次都指向最新那版。
             # 带版本号的话，文档里的地址会在下一次发版后 404（文件名被字面取用）。
             stable="$RUNNER_TEMP/$(basename "$tarball" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+.*\.tgz$/.tgz/')"
