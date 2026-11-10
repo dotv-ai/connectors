@@ -19,7 +19,7 @@ main 后把这一块镜像过来：先过公开树的闸，再推到 `sync/conne
 | `.agents/plugins/marketplace.json` | Codex 市场索引                           |
 | `.claude-plugin/marketplace.json`  | Claude Code 市场索引                     |
 | `plugins/dotv-canvas/`             | 一个市场条目，每个宿主一份 manifest      |
-| `core/`                            | 与宿主无关的文案与资产                   |
+| `plugins/*/skills/`                | agent 读到的文案 —— 按规矩与宿主无关     |
 | `bundles/`                         | 需要打成包安装的宿主（而不是走市场条目） |
 | `tooling/`                         | 这个仓库给自己用的脚本                   |
 | `version.json`                     | 版本号，唯一手写它的地方                 |

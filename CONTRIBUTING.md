@@ -21,7 +21,7 @@ repository are caught by the manifest check and overwritten by the next sync.
 | `.agents/plugins/marketplace.json` | The Codex marketplace index                                              |
 | `.claude-plugin/marketplace.json`  | The Claude Code marketplace index                                        |
 | `plugins/dotv-canvas/`             | One marketplace entry, with a manifest per host                          |
-| `core/`                            | Harness-neutral wording and assets                                       |
+| `plugins/*/skills/`                | The wording an agent reads — harness-neutral by rule                     |
 | `bundles/`                         | Hosts that install a plugin as a package rather than a marketplace entry |
 | `tooling/`                         | The scripts this repository uses on itself                               |
 | `version.json`                     | The version number, and the only place it is written by hand             |
