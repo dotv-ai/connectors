@@ -67,3 +67,18 @@ When a new version reaches `main` here, CI tags it and publishes: the npm
 packages for the bundles (with provenance), a tarball per bundle for installers
 that would otherwise need build approval, and a GitHub Release holding both.
 Nothing needs to be clicked.
+
+Two paths, two jobs, deliberately apart: the npm one needs a trusted publisher
+configured on the package (`dotv-ai` / `connectors` / `release.yml` / environment
+`connectors`), and until that is set it fails on the one-time 2FA npm asks for
+on a package's first publish. The tarball path does not depend on npm at all, so
+the bundle stays installable either way:
+
+```sh
+dsh plugin --profile demo add \
+  https://github.com/dotv-ai/connectors/releases/latest/download/dotv-dsh-canvas.tgz
+```
+
+The asset name carries no version on purpose: `releases/latest/download/` takes
+the filename literally, so a versioned name would 404 the moment the next
+release lands.

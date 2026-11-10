@@ -17,9 +17,13 @@ exactly the files that harness's format requires.
 
 ## Present
 
-| Harness          | Directory   | Package            | Install                                          |
-| ---------------- | ----------- | ------------------ | ------------------------------------------------ |
-| DeepSeek Harness | _(planned)_ | `@dotv/dsh-canvas` | `dsh plugin --profile demo add @dotv/dsh-canvas` |
+| Harness          | Directory           | Package            | Install                                          |
+| ---------------- | ------------------- | ------------------ | ------------------------------------------------ |
+| DeepSeek Harness | `deepseek-harness/` | `@dotv/dsh-canvas` | `dsh plugin --profile demo add @dotv/dsh-canvas` |
+
+It gives the agent five tools — list canvases, list nodes, add a text node,
+run a node, run a group — over DOTV's HTTP API. It has no runtime
+dependencies, so installing it never has to resolve a peer version range.
 
 ## Not present
 

@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "DOTV 无限画布",
+    "description": "让 agent 在 DOTV 无限画布上干活：读画布、加节点、跑生成。",
+    "detail": "docs/DETAIL.zh.md"
+  }
+}

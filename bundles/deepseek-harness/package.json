@@ -1,0 +1,52 @@
+{
+  "name": "@dotv/dsh-canvas",
+  "version": "0.1.1",
+  "description": "在 DeepSeek Harness 里驱动 DOTV 无限画布：读画布、加节点、跑生成。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "docs"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "dotv",
+    "canvas",
+    "image",
+    "video",
+    "storyboard"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dotv-ai/connectors.git",
+    "directory": "bundles/deepseek-harness"
+  },
+  "bugs": {
+    "url": "https://github.com/dotv-ai/connectors/issues"
+  },
+  "homepage": "https://dotv.ai",
+  "engines": {
+    "dsh": ">=0.2.1-rc.1 <0.3.0-0",
+    "node": ">=22"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "DOTV Canvas",
+    "description": "Let your agent work on the DOTV infinite canvas: read it, add nodes, run generations.",
+    "detail": "docs/DETAIL.md"
+  }
+}

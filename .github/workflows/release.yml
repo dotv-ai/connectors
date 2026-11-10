@@ -11,8 +11,12 @@ name: Release connectors
 # push 再触发一轮 workflow（防递归）。所以「推 tag」和「按 tag 发版」不能分成两趟 ——
 # 分开的话，CI 自己打的 tag 永远等不到那一趟发版。
 #
-# npm 包走 Trusted Publishing（OIDC），不碰 token；没配 trusted publisher 的包
-# 需要用 dotv 组织的 npm token 手发那一版。
+# 两条发布路径，分成两个 job：
+#
+#   · npm —— 装的时候可以写 `dsh plugin add @dotv/dsh-canvas`。走 Trusted Publishing
+#     （OIDC），不碰 token。
+#   · GitHub Release 的 tarball —— 同样的包，免构建授权直接装。**这条路不依赖 npm**，
+#     所以 npm 那条还没配好时，DSH 用户照样装得上。
 
 on:
   push:
@@ -28,12 +32,14 @@ permissions:
   id-token: write
 
 jobs:
-  release:
-    name: Release
+  # —— 打 tag ——
+  # 版本号变了就补一个 tag；人推的 tag 已经有了，什么都不做。
+  tag:
+    name: Tag the version
     runs-on: ubuntu-latest
-    # 这个仓的发版跑在 connectors 这个环境里 —— 环境上的保护规则在这一层生效，
-    # Trusted Publisher 认的也是它。
-    environment: connectors
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      publish_npm: ${{ steps.plan.outputs.publish_npm }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,9 +48,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
 
-      # 发版之前把四道闸再跑一遍：发出去的东西不该比合进 main 时更松。
       - name: Gates
         run: |
           node tooling/sync.mjs --check
@@ -52,11 +56,6 @@ jobs:
           node tooling/verify-marketplaces.mjs
           node tooling/set-version.mjs --check
 
-      # 这一趟发不发、npm 发不发，一次算清：
-      #   · 人推的 tag        —— 发，npm 也发；
-      #   · main 上版本号变了 —— 打 tag，然后发；
-      #   · main 上版本号没变 —— npm 不重复发（同一个版本发第二次会被 npm 拒），
-      #                           但确保这个版本有个 Release（上一趟可能只打了 tag）。
       - name: Work out what to publish
         id: plan
         run: |
@@ -65,14 +64,12 @@ jobs:
 
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             echo "publish_npm=true" >> "$GITHUB_OUTPUT"
-            echo "publish_release=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
-            echo "v$version 已经打过 tag 了。"
+            echo "v$version 已经打过 tag 了 —— 版本号没变，这一趟不发。"
             echo "publish_npm=false" >> "$GITHUB_OUTPUT"
-            echo "publish_release=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -82,15 +79,34 @@ jobs:
           git push origin "v$version"
           echo "打了 tag v$version"
           echo "publish_npm=true" >> "$GITHUB_OUTPUT"
-          echo "publish_release=true" >> "$GITHUB_OUTPUT"
+
+  # —— npm ——
+  npm:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    needs: tag
+    if: needs.tag.outputs.publish_npm == 'true'
+    # 这个仓的发版跑在 connectors 这个环境里 —— 环境上的保护规则在这一层生效，
+    # Trusted Publisher 认的也是它。
+    environment: connectors
+    # 还没在 npm 上配 trusted publisher 时，这一步会因为要一次性 2FA 而红。
+    # 那不影响 tarball 与 Release（另一个 job），所以这里放过它 —— 等配好了，把这行删掉。
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
 
       # Trusted Publishing 需要 npm >= 11.5.1，而 Node 22 自带的是 npm 10 —— 先升。
       - name: Use an npm that speaks trusted publishing
-        if: steps.plan.outputs.publish_npm == 'true'
         run: npm install -g npm@latest
 
       - name: Publish the npm packages
-        if: steps.plan.outputs.publish_npm == 'true'
+        env:
+          VERSION: ${{ needs.tag.outputs.version }}
         run: |
           shopt -s nullglob
           packages=(bundles/*/package.json)
@@ -108,11 +124,32 @@ jobs:
             fi
           done
 
+  # —— GitHub Release（tarball）——
+  release:
+    name: GitHub release (tarball)
+    runs-on: ubuntu-latest
+    needs: tag
+    environment: connectors
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Gates
+        run: |
+          node tooling/sync.mjs --check
+          node tooling/verify-public-tree.mjs
+          node tooling/verify-marketplaces.mjs
+          node tooling/set-version.mjs --check
+
       - name: Open the GitHub release
-        if: steps.plan.outputs.publish_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.plan.outputs.version }}
+          VERSION: ${{ needs.tag.outputs.version }}
         run: |
           if gh release view "v$VERSION" >/dev/null 2>&1; then
             echo "v$VERSION 的 Release 已经在了，不重复建。"
@@ -125,8 +162,12 @@ jobs:
             name=$(node -p "require('./$manifest').name")
             package_version=$(node -p "require('./$manifest').version")
             tarball=$(npm pack --pack-destination "$RUNNER_TEMP" "$dir" | tail -1)
-            tarballs+=("$RUNNER_TEMP/$tarball")
-            echo "$name@$package_version → $tarball"
+            # 名字里不带版本号：`releases/latest/download/<名字>` 每次都指向最新那版。
+            # 带版本号的话，文档里的地址会在下一次发版后 404（文件名被字面取用）。
+            stable="$RUNNER_TEMP/$(basename "$tarball" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+.*\.tgz$/.tgz/')"
+            mv "$RUNNER_TEMP/$tarball" "$stable"
+            tarballs+=("$stable")
+            echo "$name@$package_version → $stable"
           done
           notes=$(printf '连接器 v%s。\n\n- npm 包：%s\n- tarball：DSH 用户免构建授权直接装。\n' \
             "$VERSION" "$(ls bundles | tr '\n' ' ')")

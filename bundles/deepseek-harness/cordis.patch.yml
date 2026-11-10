@@ -1,0 +1,12 @@
+# 组合包的配置层：往 profile 里插入这一行，插件就挂上了。
+#
+# 行里的 config 是插件自己的配置（见 index.js 的 Config schema）：
+#   apiBase   —— DOTV 服务的地址，默认正式站；自建部署就填自己的
+#   apiKey    —— 不填就用本机 `dotv` CLI 的登录凭据（~/.dotv/credentials.json）
+#   canvasId  —— 默认画布；不填则由工具调用时指定
+#   teamId    —— 团队空间的操作人；个人空间留空
+- insert:
+    - id: dotv-canvas
+      name: "@dotv/dsh-canvas"
+      config:
+        apiBase: "https://dotv.ai"

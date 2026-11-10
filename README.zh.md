@@ -44,8 +44,11 @@ codex mcp add dotv -- npx -y @dotv/cli mcp
 ### DeepSeek Harness
 
 ```sh
-dsh plugin --profile demo add @dotv/dsh-canvas
+dsh plugin --profile demo add https://github.com/dotv-ai/connectors/releases/latest/download/dotv-dsh-canvas.tgz
 ```
+
+npm 那条路（`dsh plugin add @dotv/dsh-canvas`）正在路上 —— 发版怎么切的见
+[CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ## 你需要什么
 
